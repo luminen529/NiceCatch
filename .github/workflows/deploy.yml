@@ -1,0 +1,45 @@
+name: Deploy to GitHub Pages
+
+# main = 배포 상태를 유지하는 브랜치. main에 반영된 내용만 배포된다.
+# (개발은 Dev 브랜치에서 진행하고 PR/머지로 main에 반영)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포는 항상 한 번에 하나만 실행하고, 진행 중인 배포는 취소하지 않는다.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 빌드 도구가 없는 정적 사이트이므로, 배포에 필요한 파일만 _site로 모은다.
+      # (plan.md, README.md 등 문서와 에디터 설정은 배포에서 제외)
+      - name: Stage site files
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -R src _site/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

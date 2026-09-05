@@ -1,4 +1,9 @@
-import { NEIS_LIMITS, CUSTOM_LIMIT, CUSTOM_LIMIT_ID } from '../../constants/neisLimits.js';
+import {
+  NEIS_LIMITS,
+  CUSTOM_LIMIT,
+  CUSTOM_LIMIT_ID,
+  formatCharHint,
+} from '../../constants/neisLimits.js';
 
 /**
  * 항목 선택 UI.
@@ -29,6 +34,7 @@ export function createLimitSelector({ selectedId, customBytes, onSelect, onCusto
         </button>`
       ).join('')}
     </div>
+    <p class="limit-selector__note" data-role="note" hidden></p>
     <div class="custom-limit" data-role="custom" hidden>
       <label class="custom-limit__label" for="custom-bytes">최대 Byte 직접 입력</label>
       <div class="custom-limit__field">
@@ -42,6 +48,7 @@ export function createLimitSelector({ selectedId, customBytes, onSelect, onCusto
 
   const chipsEl = el.querySelector('[data-role="chips"]');
   const descEl = el.querySelector('[data-role="desc"]');
+  const noteEl = el.querySelector('[data-role="note"]');
   const customEl = el.querySelector('[data-role="custom"]');
   const customInput = el.querySelector('#custom-bytes');
 
@@ -74,11 +81,15 @@ export function createLimitSelector({ selectedId, customBytes, onSelect, onCusto
     }
 
     if (limit) {
+      const charHint = formatCharHint(limit);
       descEl.textContent = isCustom
         ? limit.description
         : `${limit.description} · 최대 ${limit.maxBytes.toLocaleString('ko-KR')}Byte${
-            limit.charHint ? ` (${limit.charHint})` : ''
+            charHint ? ` (${charHint})` : ''
           }`;
+
+      noteEl.hidden = !limit.note;
+      noteEl.textContent = limit.note ?? '';
     }
   }
 

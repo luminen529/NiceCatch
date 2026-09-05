@@ -1,4 +1,10 @@
-import { NEIS_LIMITS, CUSTOM_LIMIT_ID, SOURCE, STANDARD_YEAR } from '../../constants/neisLimits.js';
+import {
+  NEIS_LIMITS,
+  CUSTOM_LIMIT_ID,
+  SOURCE,
+  STANDARD_YEAR,
+  formatCharHint,
+} from '../../constants/neisLimits.js';
 
 const nf = new Intl.NumberFormat('ko-KR');
 
@@ -29,9 +35,10 @@ export function createLimitTable() {
               <th scope="row">
                 ${limit.label}
                 <span class="table__sub">${limit.description}</span>
+                ${limit.note ? `<span class="table__note">${limit.note}</span>` : ''}
               </th>
               <td class="table__num">${nf.format(limit.maxBytes)}Byte</td>
-              <td>${limit.charHint ?? '-'}</td>
+              <td class="table__num">${formatCharHint(limit) ?? '-'}</td>
             </tr>`
             )
             .join('')}
@@ -39,7 +46,8 @@ export function createLimitTable() {
       </table>
     </div>
     <p class="card__note">
-      출처: ${SOURCE.label} · 마지막 확인 ${SOURCE.lastCheckedAt}<br />
+      출처: ${SOURCE.label}<br />
+      ${SOURCE.detail} · 마지막 확인 ${SOURCE.lastCheckedAt}<br />
       ${SOURCE.note}
     </p>
   `;

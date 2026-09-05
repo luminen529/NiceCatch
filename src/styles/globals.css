@@ -213,6 +213,13 @@ textarea {
   min-height: 1.4em;
 }
 
+.limit-selector__note {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--text-subtle);
+  line-height: 1.5;
+}
+
 .chips {
   display: flex;
   gap: 8px;
@@ -578,6 +585,15 @@ textarea {
   font-size: 12px;
   font-weight: 400;
   color: var(--text-subtle);
+}
+
+.table__note {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--text-subtle);
+  line-height: 1.5;
 }
 
 .table__num {

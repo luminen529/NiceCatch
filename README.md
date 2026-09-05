@@ -1,88 +1,69 @@
 # 나이스 글자수 계산기
 
-학교생활기록부(NEIS) 입력 Byte를 브라우저에서 바로 계산하는 정적 웹사이트입니다.
-구현 계획은 [plan.md](./plan.md)를 참고하세요.
+학교생활기록부(NEIS) 입력 칸에 들어갈 내용의 **Byte를 실시간으로 계산**하는 도구입니다.
 
-## 실행
+NEIS는 글자 수가 아니라 Byte로 입력 한도를 세기 때문에, 한글과 영문이 섞이면
+"몇 글자까지 쓸 수 있는지"를 눈으로 가늠하기 어렵습니다.
+내용을 붙여넣기만 하면 현재 Byte와 함께 **남은 Byte / 초과 Byte**를 바로 보여줍니다.
 
-빌드 도구나 의존성이 필요 없습니다. 다만 ES 모듈을 사용하므로 `file://`이 아닌
-로컬 서버로 열어야 합니다.
+**https://luminen529.github.io/NiceCatch/**
 
-```bash
-python3 -m http.server 4173
-# http://localhost:4173
-```
+## 주요 기능
 
-## 브랜치와 배포
+- **실시간 Byte 계산** — 입력하는 즉시 계산됩니다. 버튼을 누를 필요가 없습니다.
+- **항목별 한도 선택** — 교과 세특, 자율·자치활동, 동아리활동, 진로활동,
+  개인별 세특, 행동특성 및 종합의견. 원하는 값을 직접 입력할 수도 있습니다.
+- **남은 Byte 중심 표시** — `1,237 / 1,500 Byte`, `263 Byte 남음`, 사용률과 진행률 바.
+  한도를 넘으면 초과 Byte가 눈에 띄게 표시됩니다.
+- **글자수 정보** — 공백 포함 / 공백 제외 글자수, 줄 수.
+- **자동 저장** — 작성하던 내용이 브라우저에 저장되어 새로고침해도 남아 있습니다.
+  언제든 끄거나 저장된 내용을 지울 수 있습니다.
+- **복사 / 지우기** — 한 번에 전체 복사, 실수 방지를 위한 2단계 확인 지우기.
+- 휴대폰과 데스크톱 모두 지원하며, 다크 모드에서도 편하게 볼 수 있습니다.
 
-| 브랜치 | 용도 |
-| --- | --- |
-| `main` | 배포 상태를 유지하는 브랜치. 여기에 푸시되면 자동 배포된다. |
-| `Dev` | 개발 브랜치. 작업 후 PR로 `main`에 머지한다. |
+## 사용 방법
 
-`main`에 푸시하면 `.github/workflows/deploy.yml`이 실행되어 GitHub Pages로 배포됩니다.
-Actions 탭에서 `Deploy to GitHub Pages` 워크플로를 수동 실행(`workflow_dispatch`)할 수도 있습니다.
+1. 사이트에 접속합니다.
+2. 작성할 **항목**을 고릅니다. 최대 Byte가 자동으로 적용됩니다.
+   목록에 없는 한도가 필요하면 **직접 설정**을 선택해 값을 입력하세요.
+3. 입력창에 내용을 쓰거나 붙여넣습니다.
+4. 아래에서 현재 Byte, 남은 Byte, 사용률을 확인하며 분량을 조절합니다.
+5. 다 쓰면 **전체 복사**로 옮겨 붙입니다.
 
-배포 URL: https://luminen529.github.io/NiceCatch/
-
-빌드 단계가 없으므로 워크플로는 `index.html`과 `src/`만 `_site`로 모아 그대로 게시합니다.
-문서(`plan.md`, `README.md`)와 에디터 설정은 배포에 포함되지 않습니다.
-
-> 최초 1회, 저장소 **Settings → Pages → Build and deployment → Source**를
-> **GitHub Actions**로 설정해야 워크플로 배포가 동작합니다.
-
-### 개발 흐름
-
-```bash
-git switch Dev
-# 작업 후
-git add -A && git commit -m "..."
-git push origin Dev
-# GitHub에서 Dev -> main PR 생성 후 머지하면 배포
-```
-
-## 구조
-
-```text
-index.html                     SEO 메타데이터 + 진입점
-src/
-├─ components/
-│  ├─ Counter/                 계산기 (상태 소유: Counter.js)
-│  │  ├─ Counter.js            상태·자동 저장·렌더 오케스트레이션
-│  │  ├─ LimitSelector.js      항목 선택 / 직접 설정
-│  │  ├─ TextInput.js          입력창, 복사, 2단계 지우기
-│  │  └─ ResultPanel.js        현재/최대/남은/초과 Byte, 진행률, 글자수
-│  ├─ Info/                    ByteGuide · LimitTable · FAQ
-│  └─ Layout/                  Header · Footer
-├─ constants/neisLimits.js     항목별 최대 Byte, 출처, 확인 날짜
-├─ hooks/useLocalStorage.js    localStorage 접근 + 디바운스
-├─ utils/calculateNeisBytes.js Byte 계산 규칙 (UI와 분리)
-├─ styles/globals.css
-└─ main.js
-```
-
-## 유지보수 포인트
-
-- **기준값 변경**: `src/constants/neisLimits.js`의 `NEIS_LIMITS`, `STANDARD_YEAR`,
-  `SOURCE.lastCheckedAt`만 수정하면 선택 칩·안내 표·푸터에 모두 반영됩니다.
-- **계산 규칙 변경**: `src/utils/calculateNeisBytes.js`만 수정합니다.
-  UI 컴포넌트에는 Byte 규칙이 들어 있지 않습니다.
-- **FAQ 추가**: `src/components/Info/FAQ.js`의 `FAQ_ITEMS`에 항목을 추가하면
-  화면과 FAQ 구조화 데이터(JSON-LD)에 함께 반영됩니다.
-- 배포 도메인이 정해지면 `index.html`의 `<link rel="canonical">` 값을 교체하세요.
-
-## 계산 규칙
+## Byte 계산 기준
 
 | 문자 | Byte |
 | --- | --- |
-| 한글·한자·전각기호 | 3 |
-| 영문·숫자·기호·공백 | 1 |
-| 줄바꿈(Enter) | 1 |
+| 한글·한자 | 3Byte |
+| 영문·숫자 | 1Byte |
+| 기호·문장부호·공백 | 1Byte |
+| 줄바꿈(Enter) | 1Byte |
 
-`\r\n`은 `\n`으로 정규화한 뒤 계산합니다.
+한글만으로 1,500Byte를 채우면 약 500자입니다.
+영문·숫자가 섞이면 같은 1,500Byte에 더 많은 글자를 담을 수 있습니다.
+
+## 항목별 최대 Byte
+
+| 항목 | 최대 Byte | 한글 환산 |
+| --- | --- | --- |
+| 교과 세특 | 1,500Byte | 약 500자 |
+| 자율·자치활동 | 1,500Byte | 약 500자 |
+| 동아리활동 | 1,500Byte | 약 500자 |
+| 진로활동 | 2,100Byte | 약 700자 |
+| 개인별 세특 | 1,500Byte | 약 500자 |
+| 행동특성 및 종합의견 | 1,500Byte | 약 500자 |
+
+출처: 교육부 「학교생활기록부 기재요령(고등학교)」 · 마지막 확인 2026-09-05
+학교급·학년도에 따라 기준이 다를 수 있으므로 최신 기재요령을 함께 확인하세요.
 
 ## 개인정보
 
-모든 계산은 브라우저에서만 이루어지며 입력 내용은 서버로 전송되지 않습니다.
-자동 저장을 켠 경우에만 현재 브라우저의 `localStorage`에 저장되고,
+입력한 내용은 **서버로 전송되지 않습니다.** 모든 계산은 브라우저 안에서만 이루어집니다.
+자동 저장을 켠 경우에만 현재 브라우저의 `localStorage`에 저장되며,
 자동 저장을 끄거나 "저장된 내용 삭제"를 누르면 즉시 삭제됩니다.
+
+## 안내
+
+이 사이트는 NEIS·교육부·KERIS의 공식 서비스가 아닌 비공식 도구입니다.
+NEIS 화면 설정에 따라 줄바꿈 처리 등에서 1~2Byte 차이가 날 수 있으므로,
+한도에 근접한 경우에는 여유를 조금 두고 작성한 뒤 NEIS에서 최종 확인하시기 바랍니다.

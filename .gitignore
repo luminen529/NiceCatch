@@ -6,6 +6,9 @@
 .vscode/
 *.swp
 
+# 로컬 전용 개발 문서
+project.md
+
 # 로그 및 임시 파일
 *.log
 _site/

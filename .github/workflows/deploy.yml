@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
 
       # 빌드 도구가 없는 정적 사이트이므로, 배포에 필요한 파일만 _site로 모은다.
-      # (plan.md, README.md 등 문서와 에디터 설정은 배포에서 제외)
+      # (README.md 등 문서와 에디터 설정은 배포에서 제외)
       - name: Stage site files
         run: |
           mkdir -p _site
